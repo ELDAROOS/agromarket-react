@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { API_URL } from '../api';
 
-function ContactForm() {
+function ContactForm({ products = [], productsLoading = false, productsError = null }) {
     const [sending, setSending] = useState(false);
     const inFlight = useRef(false);
 
@@ -48,6 +48,15 @@ function ContactForm() {
                 className="contact-form"
                 onSubmit={handleSubmit}
             >
+                <label htmlFor="product_id">Товар (необязательно)</label>
+                <select id="product_id" name="product_id" defaultValue="" disabled={productsLoading}>
+                    <option value="">{productsLoading ? 'Загрузка товаров…' : 'Общая заявка без выбора товара'}</option>
+                    {products.map((product) => (
+                        <option key={product.id} value={product.id}>{product.name} — {product.price} тг</option>
+                    ))}
+                </select>
+                {productsError && <p role="status">Список товаров недоступен. Можно отправить общую заявку.</p>}
+
                 <label htmlFor="name">
                     Имя / организация
                 </label>

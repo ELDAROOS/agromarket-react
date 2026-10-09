@@ -234,6 +234,7 @@ img {
 }
 
 .contact-form input,
+.contact-form select,
 .contact-form textarea {
     width: 100%;
     min-width: 0;

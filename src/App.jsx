@@ -5,7 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ContactForm from './components/ContactForm';
 
-import { API_URL } from './api';
+import { loadAllProducts } from './api';
 
 function App() {
     const [products, setProducts] = useState([]);
@@ -16,19 +16,15 @@ function App() {
 
     // Загрузка товаров с Express API
     useEffect(() => {
+        const controller = new AbortController();
         async function loadProducts() {
             try {
-                const response = await fetch(`${API_URL}/products`);
-
-                if (!response.ok) {
-                    throw new Error('Ошибка загрузки товаров');
-                }
-
-                const data = await response.json();
+                const data = await loadAllProducts(controller.signal);
 
                 setProducts(data);
                 setLoading(false);
             } catch (error) {
+                if (controller.signal.aborted) return;
                 setError('Не удалось загрузить товары');
                 setLoading(false);
 
@@ -37,6 +33,7 @@ function App() {
         }
 
         loadProducts();
+        return () => controller.abort();
     }, []);
 
     // Поиск товаров
@@ -132,7 +129,7 @@ function App() {
                 </aside>
 
                 {/* Форма оптовой заявки */}
-                <ContactForm />
+                <ContactForm products={products} productsLoading={loading} productsError={error} />
 
             </main>
 
