@@ -1,160 +1,243 @@
-* {
-    box-sizing: border-box;
+/* ==========================================================================
+   VÉRITÉ ORGANICS DESIGN SYSTEM & CORE TOKENS
+   Экологичный люкс • Quiet Luxury • Тактильный минимализм
+   ========================================================================== */
+
+:root {
+  /* --- Brand & Nature Tones --- */
+  --color-primary: #1E3A2F;         /* Deep Forest Pine — благородный хвойный */
+  --color-primary-hover: #152A22;   /* Теневой хвойный */
+  --color-secondary: #5E7A68;       /* Muted Sage — дикий шалфей */
+  --color-secondary-light: #EBF2ED; /* Светлый шалфей для фонов */
+  
+  /* --- Canvas & Materials --- */
+  --color-background: #F9F7F2;      /* Raw Cotton — тёплый небелёный хлопок */
+  --color-surface: #FFFFFF;         /* Чистый алебастр */
+  --color-surface-subtle: #F3EFEA;  /* Light Travertine — мягкий песочный травертин */
+  --color-surface-card: #FFFFFF;
+  --color-border: #E4DDD3;          /* Flax Thread — овсяная льняная нить */
+  --color-border-hover: #C5BCAD;
+
+  /* --- Action & Terracotta CTA --- */
+  --color-accent: #C86D51;          /* Sunbaked Clay — тёплая обожжённая терракота */
+  --color-accent-hover: #B45E43;    /* Насыщенная терракота */
+  --color-accent-subtle: #FAF0EC;
+
+  /* --- Typography --- */
+  --color-text-primary: #1A1D1A;    /* Charcoal Slate — глубокий графит */
+  --color-text-muted: #6B7369;      /* Dried Herb — сухой мох */
+  --color-text-light: #8E968B;
+  --color-text-white: #FFFFFF;
+
+  /* --- Badges & Semantic Tags --- */
+  --badge-organic-bg: #EAF3EC;
+  --badge-organic-text: #235836;
+  --badge-zerowaste-bg: #F5EFE8;
+  --badge-zerowaste-text: #7A5332;
+  --badge-vegan-bg: #EEF4F0;
+  --badge-vegan-text: #39634B;
+  --badge-danger-bg: #FDF0ED;
+  --badge-danger-text: #B33924;
+
+  /* --- Fonts --- */
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* --- Elevation & Tactile Shadows --- */
+  --shadow-sm: 0 2px 8px rgba(30, 58, 47, 0.04);
+  --shadow-card: 0 4px 20px -2px rgba(30, 58, 47, 0.05), 0 1px 3px rgba(30, 58, 47, 0.03);
+  --shadow-hover: 0 16px 36px -4px rgba(30, 58, 47, 0.09), 0 2px 6px rgba(30, 58, 47, 0.03);
+  --shadow-modal: 0 24px 64px -8px rgba(26, 29, 26, 0.16);
+
+  /* --- Radii --- */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 100px;
+
+  /* --- Transitions --- */
+  --transition-fast: 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ==========================================================================
+   Base Reset
+   ========================================================================== */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #222;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  line-height: 1.55;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  touch-action: manipulation;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ==========================================================================
+   Layout Containers
+   ========================================================================== */
 
 .container {
-    width: 90%;
-    max-width: 1100px;
-    margin: 0 auto;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-
-/* HEADER */
-
-.header {
-    background-color: #2e7d32;
-    color: white;
-    padding: 20px 0;
+@media (max-width: 640px) {
+  .container {
+    padding: 0 16px;
+  }
 }
 
-.header .container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* ==========================================================================
+   Buttons & Micro-interactions (HIG compliance >= 44px)
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 28px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 15px;
+  transition: all var(--transition-smooth);
+  text-align: center;
 }
 
-.header h1 {
-    margin: 0;
+.btn:active {
+  transform: scale(0.98);
 }
 
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 20px;
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
+  box-shadow: 0 4px 14px rgba(30, 58, 47, 0.18);
 }
 
-nav a:hover {
-    text-decoration: underline;
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 6px 20px rgba(30, 58, 47, 0.28);
+  transform: translateY(-1px);
 }
 
-
-/* HERO */
-
-.hero {
-    text-align: center;
-    padding: 50px 20px;
+.btn-cta {
+  background-color: var(--color-accent);
+  color: var(--color-text-white);
+  box-shadow: 0 4px 14px rgba(200, 109, 81, 0.25);
 }
 
-.hero h2 {
-    font-size: 32px;
-    margin-bottom: 10px;
+.btn-cta:hover {
+  background-color: var(--color-accent-hover);
+  box-shadow: 0 8px 22px rgba(200, 109, 81, 0.35);
+  transform: translateY(-1px);
 }
 
-
-/* CATALOG */
-
-.catalog {
-    padding-bottom: 50px;
+.btn-secondary {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
 }
 
-.catalog > h2 {
-    text-align: center;
-    margin-bottom: 30px;
+.btn-secondary:hover {
+  background-color: var(--color-primary);
+  color: var(--color-text-white);
 }
 
-.products {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+.btn-subtle {
+  background-color: var(--color-surface-subtle);
+  color: var(--color-primary);
 }
 
-
-/* CARD */
-
-.card {
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-
-    text-align: center;
+.btn-subtle:hover {
+  background-color: var(--color-border);
 }
 
-.card img {
-    width: 100%;
-    border-radius: 8px;
+.btn-icon {
+  min-height: 44px;
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
 }
 
-.card h3 {
-    margin: 15px 0 10px;
+/* ==========================================================================
+   Badges
+   ========================================================================== */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.price {
-    font-size: 20px;
-    font-weight: bold;
+.badge-organic {
+  background: var(--badge-organic-bg);
+  color: var(--badge-organic-text);
 }
 
-.card button {
-    border: none;
-    background-color: #2e7d32;
-    color: white;
-
-    padding: 10px 20px;
-
-    border-radius: 5px;
-
-    cursor: pointer;
+.badge-zerowaste {
+  background: var(--badge-zerowaste-bg);
+  color: var(--badge-zerowaste-text);
 }
 
-.card button:hover {
-    background-color: #1b5e20;
+.badge-vegan {
+  background: var(--badge-vegan-bg);
+  color: var(--badge-vegan-text);
 }
 
-
-/* FOOTER */
-
-.footer {
-    background-color: #222;
-    color: white;
-
-    text-align: center;
-
-    padding: 20px;
-}
-
-
-/* АДАПТИВНОСТЬ */
-
-@media (max-width: 900px) {
-
-    .products {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-}
-
-
-@media (max-width: 600px) {
-
-    .header .container {
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    nav a {
-        margin: 0 10px;
-    }
-
-    .products {
-        grid-template-columns: 1fr;
-    }
-
+.badge-accent {
+  background: var(--color-accent-subtle);
+  color: var(--color-accent);
 }

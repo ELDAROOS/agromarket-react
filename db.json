@@ -2,27 +2,35 @@
   "products": [
     {
       "id": 1,
-      "name": "кек, 1 кг",
-      "price": 350,
-      "image": "https://placehold.co/300x200"
+      "name": "Дикий донниковый мёд, 400 г",
+      "category": "Мёд и пасека",
+      "price": 3450,
+      "unit": "шт",
+      "image": "/images/honey.jpg"
     },
     {
       "id": 2,
-      "name": "лол, 1 л",
-      "price": 4500,
-      "image": "https://placehold.co/300x200"
+      "name": "Сыродавленное кедровое масло, 250 мл",
+      "category": "Масла холодного отжима",
+      "price": 4800,
+      "unit": "шт",
+      "image": "/images/cedar-oil.jpg"
     },
     {
       "id": 3,
-      "name": "дешка, 1 л",
-      "price": 600,
-      "image": "https://placehold.co/300x200"
+      "name": "Альпийский горный сбор, 100 г",
+      "category": "Чай и травы",
+      "price": 1850,
+      "unit": "шт",
+      "image": "/images/herbal-tea.jpg"
     },
     {
       "id": 4,
-      "name": "джяй, 1кг",
-      "price": 700,
-      "image": "https://placehold.co/300x200"
+      "name": "Органический горный лён, 500 г",
+      "category": "Злаки и семена",
+      "price": 1200,
+      "unit": "шт",
+      "image": "/images/hero.jpg"
     }
   ]
 }
