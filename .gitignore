@@ -25,3 +25,6 @@ dist-ssr
 *.docx
 build_*.py
 
+
+.env*
+!.env.example
