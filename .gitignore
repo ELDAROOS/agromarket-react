@@ -32,3 +32,4 @@ build_*.py
 coverage/
 playwright-report/
 test-results/
+lab10-artifacts/

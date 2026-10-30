@@ -1,0 +1,23 @@
+{
+  "pr": "https://github.com/ELDAROOS/agromarket-react/pull/4",
+  "state": "open",
+  "merged": false,
+  "mergeable_state": "blocked",
+  "required_checks": [
+    "build"
+  ],
+  "checks": [
+    {
+      "name": "Vercel Preview Comments",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/ELDAROOS/agromarket-react/runs/123874842846"
+    },
+    {
+      "name": "build",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/ELDAROOS/agromarket-react/actions/runs/40997775742/job/123874834815"
+    }
+  ]
+}
