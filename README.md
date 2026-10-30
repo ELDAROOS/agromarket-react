@@ -309,8 +309,8 @@ npx playwright show-trace lab10-artifacts/intentional-failure/test-results/inten
 - [PR #2 — test/react-components](https://github.com/ELDAROOS/agromarket-react/pull/2).
 - [PR #3 — test/e2e](https://github.com/ELDAROOS/agromarket-react/pull/3), база — ветка PR #2.
 - [PR #4 — отрицательный эксперимент](https://github.com/ELDAROOS/agromarket-react/pull/4),
-  красный CI и блокировка; закрывается без слияния. [Снимок проверки](docs/lab10-ci-block.json).
-- Ветка `docs/lab10` содержит этот отчёт и зависит от PR #3.
+  красный CI и блокировка; закрыт без слияния. [Снимок проверки](docs/lab10-ci-block.json).
+- [PR #5 — docs/lab10](https://github.com/ELDAROOS/agromarket-react/pull/5) содержит этот отчёт и зависит от PR #3.
 
 Для полного выполнения внешней части нужны настоящее ревью напарника и последовательное
 слияние PR #2, #3 и документации (после предыдущего слияния менять base следующего PR на main).
