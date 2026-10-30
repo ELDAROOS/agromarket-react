@@ -20,7 +20,7 @@ function ProductCard({ product, onAdd, featured = false, onDelete }) {
   }
 
   function handleAddToCart() {
-    onAdd(product);
+    // ЛР10: намеренно удалён onAdd для демонстрации блокировки CI.
     setAddedAnim(true);
     setTimeout(() => setAddedAnim(false), 900);
   }
