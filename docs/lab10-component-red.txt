@@ -1,0 +1,30 @@
+
+> agromarket-react@0.0.0 test
+> vitest run src/components/ProductCard.test.jsx
+
+
+ RUN  v4.1.12 /Users/eldar/Downloads/agromarket-react-main/agromarket-react-main
+
+ ❯ src/components/ProductCard.test.jsx (4 tests | 1 failed) 215ms
+     × добавляет именно выбранный товар ровно один раз 38ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  08:22:06
+   Duration  1.28s (transform 62ms, setup 135ms, import 78ms, tests 215ms, environment 661ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/components/ProductCard.test.jsx > ProductCard > добавляет именно выбранный товар ровно один раз
+AssertionError: expected "vi.fn()" to be called 1 times, but got 0 times
+ ❯ src/components/ProductCard.test.jsx:18:19
+     16|     render(<ProductCard product={product} onAdd={onAdd} />);
+     17|     await userEvent.setup().click(screen.getByRole('button', { name: /…
+     18|     expect(onAdd).toHaveBeenCalledTimes(1);
+       |                   ^
+     19|     expect(onAdd).toHaveBeenCalledWith(product);
+     20|     expect(screen.getByText('Добавлено')).toBeInTheDocument();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
