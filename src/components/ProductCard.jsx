@@ -30,7 +30,7 @@ function ProductCard({ product, onAdd, featured = false, onDelete }) {
   const isBio = !isZeroWaste;
 
   return (
-    <article className="card">
+    <article className="card" data-testid="product-card">
       <div className="card-media-wrapper">
         <div className="card-badges">
           {featured && (

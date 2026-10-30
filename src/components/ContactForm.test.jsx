@@ -1,0 +1,23 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import ContactForm from './ContactForm';
+import { products, mockFetch } from '../test/helpers';
+test('заявка отправляет выбранный товар с JWT и показывает успех', async () => {
+  localStorage.setItem('token', 'test-token');
+  const spy = mockFetch({ id: 42 }, 201);
+  const onCreated = vi.fn();
+  render(<ContactForm products={products} onCreated={onCreated} />);
+  const user = userEvent.setup();
+  await user.selectOptions(screen.getByLabelText(/Выбор товара/), '1');
+  await user.type(screen.getByLabelText(/Ваше имя/), 'Покупатель');
+  await user.type(screen.getByLabelText(/Email/), 'buyer@example.test');
+  await user.type(screen.getByLabelText(/Контактный телефон/), '+77001234567');
+  await user.click(screen.getByRole('button', { name: 'Отправить заявку' }));
+  expect(await screen.findByRole('status')).toHaveTextContent('Заявка №42 успешно принята');
+  await waitFor(() => expect(onCreated).toHaveBeenCalledWith({ id: 42 }));
+  expect(spy).toHaveBeenCalledTimes(1);
+  const [url, options] = spy.mock.calls[0];
+  expect(url).toMatch(/\/orders$/);
+  expect(options.headers.get('Authorization')).toBe('Bearer test-token');
+  expect(JSON.parse(options.body)).toMatchObject({ product_id: '1', quantity: '10', email: 'buyer@example.test' });
+});

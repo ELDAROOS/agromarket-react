@@ -25,52 +25,16 @@ import {
 
 import { loadAllProducts, apiFetch, saveSession, clearSession } from './api';
 
-// Запасной органический каталог на случай временной недоступности бэкенда
-const fallbackProducts = [
-  {
-    id: 1,
-    name: 'Дикий донниковый мёд, 400 г',
-    category: 'Мёд и пасека',
-    price: 3450,
-    unit: 'шт',
-    image: '/images/honey.jpg',
-  },
-  {
-    id: 2,
-    name: 'Сыродавленное кедровое масло, 250 мл',
-    category: 'Масла',
-    price: 4800,
-    unit: 'шт',
-    image: '/images/cedar-oil.jpg',
-  },
-  {
-    id: 3,
-    name: 'Альпийский горный сбор, 100 г',
-    category: 'Чай и травы',
-    price: 1850,
-    unit: 'шт',
-    image: '/images/herbal-tea.jpg',
-  },
-  {
-    id: 4,
-    name: 'Органический горный лён, 500 г',
-    category: 'Злаки и семена',
-    price: 1200,
-    unit: 'шт',
-    image: '/images/hero.jpg',
-  },
-];
-
 function App() {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(() => ['/login', '/register'].includes(window.location.pathname));
 
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState(null);
+  const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(() => Boolean(localStorage.getItem('token')));
   const [authMessage, setAuthMessage] = useState('');
@@ -143,13 +107,13 @@ function App() {
     async function loadProducts() {
       try {
         const data = await loadAllProducts(controller.signal);
-        setProducts(data && data.length > 0 ? data : fallbackProducts);
+        setProducts(data);
+        setError(null);
         setLoading(false);
       } catch (err) {
         if (controller.signal.aborted) return;
-        console.warn('API недоступен, загружен автономный каталог:', err);
-        setError('Сервер временно недоступен. Загружен автономный эко-каталог.');
-        setProducts(fallbackProducts);
+        setError(err.message);
+        setProducts([]);
         setLoading(false);
       }
     }
@@ -264,11 +228,15 @@ function App() {
             ) : (
               <div>
                 {authMessage && <div className="form-alert form-alert-error" style={{ marginBottom: '14px' }}>{authMessage}</div>}
-                <LoginForm onLogin={handleLogin} />
+                <LoginForm onLogin={handleLogin} initialMode={window.location.pathname === '/register' ? 'register' : 'login'} />
               </div>
             )}
           </div>
         </div>
+      )}
+
+      {window.location.pathname === '/admin' && !checkingAuth && user?.role !== 'admin' && (
+        <p role="alert">Нет доступа. Войдите в аккаунт администратора.</p>
       )}
 
       {/* Панель добавления товара (только для Администратора) */}
@@ -422,15 +390,17 @@ function App() {
           </div>
 
           {loading ? (
-            <p style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-text-muted)' }}>
+            <p role="status" style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-text-muted)' }}>
               Загрузка каталога…
             </p>
+          ) : error ? (
+            <p role="alert">Не удалось загрузить каталог. {error}</p>
           ) : filteredProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--color-text-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', color: 'var(--color-secondary)' }}>
                 <WheatIcon size={44} />
               </div>
-              <h3>Товары не найдены</h3>
+              <h3>{products.length === 0 ? 'Товаров пока нет' : 'Товары не найдены'}</h3>
               <p>Попробуйте изменить поисковый запрос или выбрать другую категорию</p>
             </div>
           ) : (
@@ -489,6 +459,7 @@ function App() {
       <ContactForm
         products={products}
         productsLoading={loading}
+        productsError={error}
         onCreated={() => setOrdersRevision((n) => n + 1)}
       />
 

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { apiFetch } from '../api';
 
-export default function LoginForm({ onLogin }) {
-  const [mode, setMode] = useState('login');
+export default function LoginForm({ onLogin, initialMode = 'login' }) {
+  const [mode, setMode] = useState(initialMode);
   const [error, setError] = useState('');
   const [sending, setSending] = useState(false);
   const isLogin = mode === 'login';
