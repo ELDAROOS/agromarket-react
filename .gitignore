@@ -28,3 +28,7 @@ build_*.py
 
 .env*
 !.env.example
+playwright-report
+test-results
+lab10-artifacts
+coverage

@@ -3,6 +3,8 @@ import { apiFetch } from '../api';
 
 export default function AddProductForm({ onAdded }) {
   const [error, setError] = useState('');
+  const [details, setDetails] = useState([]);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -12,6 +14,8 @@ export default function AddProductForm({ onAdded }) {
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
     setError('');
+    setDetails([]);
+    setFieldErrors({});
     setSending(true);
     setSuccess(false);
 
@@ -25,7 +29,15 @@ export default function AddProductForm({ onAdded }) {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Ошибка при добавлении товара');
+      if (Array.isArray(err.details) && err.details.length > 0) {
+        setDetails(err.details);
+        const mapped = {};
+        for (const item of err.details) {
+          if (item.field) mapped[item.field] = item.message;
+        }
+        setFieldErrors(mapped);
+      }
     } finally {
       setSending(false);
     }
@@ -40,38 +52,112 @@ export default function AddProductForm({ onAdded }) {
             Добавить новый органический товар
           </h3>
 
-          {error && <div className="form-alert form-alert-error" role="alert" style={{ marginBottom: '16px' }}>{error}</div>}
+          {error && (
+            <div className="form-alert form-alert-error" role="alert" style={{ marginBottom: '16px' }}>
+              <div>{error}</div>
+              {details.length > 0 && (
+                <ul style={{ margin: '6px 0 0 18px', padding: 0, fontSize: '13px' }}>
+                  {details.map((d, i) => (
+                    <li key={i}>{d.message || `${d.field}: ошибка`}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
           {success && <div className="form-alert form-alert-success" role="status" style={{ marginBottom: '16px' }}>✓ Товар успешно опубликован в каталоге!</div>}
 
           <form className="order-form" onSubmit={handleSubmit}>
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="prod-name">Название продукта *</label>
-                <input id="prod-name" name="name" placeholder="Например: Масло льна, 250 мл" required />
+                <input
+                  id="prod-name"
+                  name="name"
+                  placeholder="Например: Масло льна, 250 мл"
+                  required
+                  aria-invalid={Boolean(fieldErrors.name)}
+                />
+                {fieldErrors.name && (
+                  <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
+                    {fieldErrors.name}
+                  </span>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="prod-cat">Категория</label>
-                <input id="prod-cat" name="category" placeholder="Масла / Мёд и пасека / Чай" />
+                <input
+                  id="prod-cat"
+                  name="category"
+                  placeholder="Масла / Мёд и пасека / Чай"
+                  aria-invalid={Boolean(fieldErrors.category)}
+                />
+                {fieldErrors.category && (
+                  <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
+                    {fieldErrors.category}
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="prod-price">Цена (₸) *</label>
-                <input id="prod-price" name="price" type="number" min="0" max="2147483647" step="1" placeholder="3200" required />
+                <input
+                  id="prod-price"
+                  name="price"
+                  type="number"
+                  min="0"
+                  max="10000000"
+                  step="1"
+                  placeholder="3200"
+                  required
+                  aria-invalid={Boolean(fieldErrors.price)}
+                />
+                {fieldErrors.price && (
+                  <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
+                    {fieldErrors.price}
+                  </span>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="prod-unit">Единица измерения</label>
-                <input id="prod-unit" name="unit" defaultValue="шт" placeholder="шт / кг / л" />
+                <input
+                  id="prod-unit"
+                  name="unit"
+                  defaultValue="кг"
+                  placeholder="шт / кг / л"
+                  aria-invalid={Boolean(fieldErrors.unit)}
+                />
+                {fieldErrors.unit && (
+                  <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
+                    {fieldErrors.unit}
+                  </span>
+                )}
               </div>
             </div>
 
             <div className="form-group">
               <label htmlFor="prod-img">Ссылка на изображение (URL)</label>
-              <input id="prod-img" name="image" type="url" placeholder="https://… или /images/honey.jpg" />
+              <input
+                id="prod-img"
+                name="image"
+                type="url"
+                placeholder="https://… или /images/honey.jpg"
+                aria-invalid={Boolean(fieldErrors.image)}
+              />
+              {fieldErrors.image && (
+                <span style={{ color: '#dc2626', fontSize: '12px', marginTop: '4px' }}>
+                  {fieldErrors.image}
+                </span>
+              )}
             </div>
 
-            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-start', minHeight: '46px' }} disabled={sending}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              style={{ alignSelf: 'flex-start', minHeight: '44px', padding: '12px 24px' }}
+              disabled={sending}
+            >
               {sending ? 'Сохранение…' : '+ Опубликовать товар'}
             </button>
           </form>
