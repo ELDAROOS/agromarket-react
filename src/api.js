@@ -30,8 +30,16 @@ export async function apiFetch(path, options = {}) {
         window.dispatchEvent(new Event('session-expired'));
     }
     if (!response.ok) {
-        const error = new Error(data?.error || `Ошибка ${response.status}`);
+        let msg = data?.error;
+        if (!msg) {
+            msg = response.status === 429
+                ? 'Слишком много попыток. Попробуйте через 15 минут'
+                : `Ошибка ${response.status}`;
+        }
+        const error = new Error(msg);
         error.status = response.status;
+        error.details = data?.details || [];
+        error.data = data;
         throw error;
     }
     return data;
