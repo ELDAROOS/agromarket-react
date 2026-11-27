@@ -1,6 +1,9 @@
 import { WheatIcon, LeafIcon, UserIcon, ShoppingBagIcon } from './Icons';
+import { useCart } from '../context/cart';
+import { Link } from 'react-router-dom';
 
-function Header({ cartCount = 0, onOpenCart, user, onOpenAuth }) {
+function Header({ user, onOpenAuth }) {
+  const { count } = useCart();
   return (
     <div className="site-header-wrapper">
       {/* Верхний информационный тикер */}
@@ -14,20 +17,22 @@ function Header({ cartCount = 0, onOpenCart, user, onOpenAuth }) {
       {/* Основная фиксированная навигационная панель */}
       <header className="site-header">
         <div className="container header-container">
-          <a href="#" className="brand">
+          <Link to="/" className="brand">
             <span className="brand-logo">
               <WheatIcon size={24} />
               <span>VÉRITÉ</span>
             </span>
             <span className="brand-subtitle">АгроМаркет • Épicerie Naturelle</span>
-          </a>
+          </Link>
 
           <nav aria-label="Основная навигация">
             <ul className="nav-links">
-              <li><a href="#catalog">Каталог</a></li>
-              <li><a href="#values">Ценности</a></li>
-              <li><a href="#trust">Происхождение</a></li>
-              <li><a href="#contact">Оптовый заказ</a></li>
+              <li><Link to="/#catalog">Каталог</Link></li>
+              <li><Link to="/#values">Ценности</Link></li>
+              <li><Link to="/#trust">Происхождение</Link></li>
+              <li><Link to="/#contact">Оптовый заказ</Link></li>
+              {user && <li><Link to="/orders">Мои заказы</Link></li>}
+              {user?.role === 'farmer' && <li><Link to="/orders/incoming">Заказы на мои товары</Link></li>}
             </ul>
           </nav>
 
@@ -44,16 +49,11 @@ function Header({ cartCount = 0, onOpenCart, user, onOpenAuth }) {
             </button>
 
             {/* Интерактивная кнопка корзины */}
-            <button
-              type="button"
-              className="cart-toggle-btn"
-              onClick={onOpenCart}
-              aria-label={`Открыть корзину: ${cartCount} товаров`}
-            >
+            <Link to="/cart" className="cart-toggle-btn" aria-label={`Корзина (${count})`}>
               <ShoppingBagIcon size={18} />
               <span>Корзина</span>
-              <span className="cart-badge">{cartCount}</span>
-            </button>
+              <span className="cart-badge">{count}</span>
+            </Link>
           </div>
         </div>
       </header>

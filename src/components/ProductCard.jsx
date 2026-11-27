@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { SproutIcon, RecycleIcon, StarIcon, CheckIcon } from './Icons';
+import { Link } from 'react-router-dom';
+import { SproutIcon, RecycleIcon, StarIcon } from './Icons';
+import AddToCartButton from './AddToCartButton';
 
-function ProductCard({ product, onAdd, featured = false, onDelete }) {
+function ProductCard({ product, featured = false, onDelete }) {
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState('');
-  const [addedAnim, setAddedAnim] = useState(false);
 
   async function handleDelete() {
     if (deleting) return;
@@ -19,18 +20,12 @@ function ProductCard({ product, onAdd, featured = false, onDelete }) {
     }
   }
 
-  function handleAddToCart() {
-    onAdd(product);
-    setAddedAnim(true);
-    setTimeout(() => setAddedAnim(false), 900);
-  }
-
   // Определяем подходящий бейдж для разнообразия каталога
   const isZeroWaste = String(product.id) === '2' || product.category === 'Масла';
   const isBio = !isZeroWaste;
 
   return (
-    <article className="card">
+    <article className="card" data-testid="product-card">
       <div className="card-media-wrapper">
         <div className="card-badges">
           {featured && (
@@ -65,7 +60,7 @@ function ProductCard({ product, onAdd, featured = false, onDelete }) {
 
       <div className="card-content">
         <span className="card-category">{product.category || 'Эко-коллекция'}</span>
-        <h3 className="card-title">{product.name}</h3>
+        <h3 className="card-title"><Link to={`/products/${product.id}`}>{product.name}</Link></h3>
         <p className="card-highlight">
           {product.category === 'Масла'
             ? 'Сыродавленное на дубовом прессе'
@@ -80,21 +75,7 @@ function ProductCard({ product, onAdd, featured = false, onDelete }) {
             <span className="card-price">{Number(product.price).toLocaleString('ru-RU')} ₸</span>
           </div>
 
-          <button
-            type="button"
-            className={`card-add-btn ${addedAnim ? 'added' : ''}`}
-            onClick={handleAddToCart}
-            aria-label={`Добавить в корзину: ${product.name}`}
-          >
-            {addedAnim ? (
-              <>
-                <CheckIcon size={14} />
-                <span>Добавлено</span>
-              </>
-            ) : (
-              <span>+ В корзину</span>
-            )}
-          </button>
+          <AddToCartButton product={product} />
         </div>
       </div>
 
