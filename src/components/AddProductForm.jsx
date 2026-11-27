@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { apiFetch } from '../api';
 
-export default function AddProductForm({ onAdded }) {
+export default function AddProductForm({ onAdded, product: initial }) {
   const [error, setError] = useState('');
   const [details, setDetails] = useState([]);
   const [fieldErrors, setFieldErrors] = useState({});
@@ -20,9 +20,10 @@ export default function AddProductForm({ onAdded }) {
     setSuccess(false);
 
     try {
-      const product = await apiFetch('/products', {
-        method: 'POST',
-        body: JSON.stringify({ ...data, price: Number(data.price) }),
+      const product = await apiFetch(initial ? `/products/${initial.id}` : '/products', {
+        method: initial ? 'PATCH' : 'POST',
+        body: JSON.stringify({ ...data, price: Number(data.price), stock: Number(data.stock),
+          category: data.category || null, image: data.image || null }),
       });
       onAdded(product);
       form.reset();
@@ -49,7 +50,7 @@ export default function AddProductForm({ onAdded }) {
         <div style={{ background: 'var(--color-surface)', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-lg)', padding: '32px' }}>
           <span className="badge badge-accent" style={{ marginBottom: '8px' }}>Панель управления</span>
           <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', color: 'var(--color-primary)', marginBottom: '16px' }}>
-            Добавить новый органический товар
+            {initial ? 'Редактировать товар' : 'Добавить новый органический товар'}
           </h3>
 
           {error && (
@@ -73,6 +74,7 @@ export default function AddProductForm({ onAdded }) {
                 <input
                   id="prod-name"
                   name="name"
+                  defaultValue={initial?.name}
                   placeholder="Например: Масло льна, 250 мл"
                   required
                   aria-invalid={Boolean(fieldErrors.name)}
@@ -88,6 +90,7 @@ export default function AddProductForm({ onAdded }) {
                 <input
                   id="prod-cat"
                   name="category"
+                  defaultValue={initial?.category ?? ''}
                   placeholder="Масла / Мёд и пасека / Чай"
                   aria-invalid={Boolean(fieldErrors.category)}
                 />
@@ -105,8 +108,9 @@ export default function AddProductForm({ onAdded }) {
                 <input
                   id="prod-price"
                   name="price"
+                  defaultValue={initial?.price}
                   type="number"
-                  min="0"
+                  min="1"
                   max="10000000"
                   step="1"
                   placeholder="3200"
@@ -124,7 +128,7 @@ export default function AddProductForm({ onAdded }) {
                 <input
                   id="prod-unit"
                   name="unit"
-                  defaultValue="кг"
+                  defaultValue={initial?.unit ?? 'кг'}
                   placeholder="шт / кг / л"
                   aria-invalid={Boolean(fieldErrors.unit)}
                 />
@@ -137,11 +141,18 @@ export default function AddProductForm({ onAdded }) {
             </div>
 
             <div className="form-group">
+              <label htmlFor="prod-stock">Остаток</label>
+              <input id="prod-stock" name="stock" type="number" min="0" max="2147483647"
+                step="1" defaultValue={initial?.stock ?? 0} required aria-invalid={Boolean(fieldErrors.stock)} />
+              {fieldErrors.stock && <span>{fieldErrors.stock}</span>}
+            </div>
+
+            <div className="form-group">
               <label htmlFor="prod-img">Ссылка на изображение (URL)</label>
               <input
                 id="prod-img"
                 name="image"
-                type="url"
+                defaultValue={initial?.image ?? ''}
                 placeholder="https://… или /images/honey.jpg"
                 aria-invalid={Boolean(fieldErrors.image)}
               />
@@ -158,7 +169,7 @@ export default function AddProductForm({ onAdded }) {
               style={{ alignSelf: 'flex-start', minHeight: '44px', padding: '12px 24px' }}
               disabled={sending}
             >
-              {sending ? 'Сохранение…' : '+ Опубликовать товар'}
+              {sending ? 'Сохранение…' : initial ? 'Сохранить изменения' : '+ Опубликовать товар'}
             </button>
           </form>
         </div>

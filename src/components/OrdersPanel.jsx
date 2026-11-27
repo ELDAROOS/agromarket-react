@@ -18,7 +18,7 @@ export default function OrdersPanel({ admin = false, revision = 0 }) {
 
   useEffect(() => {
     const controller = new AbortController();
-    apiFetch(admin ? '/orders' : '/orders/my', { signal: controller.signal })
+    apiFetch(admin ? '/orders' : '/orders/my?type=wholesale', { signal: controller.signal })
       .then((data) => {
         setOrders(data);
         setError('');

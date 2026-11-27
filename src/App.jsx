@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import ProductDetails from './components/ProductDetails';
 
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -8,7 +10,9 @@ import LoginForm from './components/LoginForm';
 import PasswordForm from './components/PasswordForm';
 import AddProductForm from './components/AddProductForm';
 import OrdersPanel from './components/OrdersPanel';
-import CartDrawer from './components/CartDrawer';
+import { useCart } from './context/cart';
+import CartPage from './pages/CartPage';
+import OrdersPage from './pages/OrdersPage';
 import {
   SproutIcon,
   FlaskIcon,
@@ -25,52 +29,17 @@ import {
 
 import { loadAllProducts, apiFetch, saveSession, clearSession } from './api';
 
-// Запасной органический каталог на случай временной недоступности бэкенда
-const fallbackProducts = [
-  {
-    id: 1,
-    name: 'Дикий донниковый мёд, 400 г',
-    category: 'Мёд и пасека',
-    price: 3450,
-    unit: 'шт',
-    image: '/images/honey.jpg',
-  },
-  {
-    id: 2,
-    name: 'Сыродавленное кедровое масло, 250 мл',
-    category: 'Масла',
-    price: 4800,
-    unit: 'шт',
-    image: '/images/cedar-oil.jpg',
-  },
-  {
-    id: 3,
-    name: 'Альпийский горный сбор, 100 г',
-    category: 'Чай и травы',
-    price: 1850,
-    unit: 'шт',
-    image: '/images/herbal-tea.jpg',
-  },
-  {
-    id: 4,
-    name: 'Органический горный лён, 500 г',
-    category: 'Злаки и семена',
-    price: 1200,
-    unit: 'шт',
-    image: '/images/hero.jpg',
-  },
-];
-
 function App() {
+  const { pathname, hash } = useLocation();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [cartItems, setCartItems] = useState([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { remove } = useCart();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [, setError] = useState(null);
+  const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(() => Boolean(localStorage.getItem('token')));
   const [authMessage, setAuthMessage] = useState('');
@@ -133,63 +102,36 @@ function App() {
     if (!window.confirm(`Удалить товар «${product.name}»?`)) return;
     await apiFetch(`/products/${product.id}`, { method: 'DELETE' });
     setProducts((items) => items.filter((item) => item.id !== product.id));
-    setCartItems((items) => items.filter((item) => item.product.id !== product.id));
+    remove(product.id);
     setOrdersRevision((n) => n + 1);
   }
 
-  // Загрузка товаров с Express API с безопасным fallback
+  // Загрузка каталога: пустой ответ и ошибка остаются видимыми пользователю.
   useEffect(() => {
     const controller = new AbortController();
     async function loadProducts() {
+      setLoading(true);
+      setError(null);
       try {
         const data = await loadAllProducts(controller.signal);
-        setProducts(data && data.length > 0 ? data : fallbackProducts);
+        if (controller.signal.aborted) return;
+        setProducts(data);
         setLoading(false);
       } catch (err) {
         if (controller.signal.aborted) return;
-        console.warn('API недоступен, загружен автономный каталог:', err);
-        setError('Сервер временно недоступен. Загружен автономный эко-каталог.');
-        setProducts(fallbackProducts);
+        setError(err.message);
+        setProducts([]);
         setLoading(false);
       }
     }
 
-    loadProducts();
+    if (pathname === '/') loadProducts();
     return () => controller.abort();
-  }, []);
+  }, [pathname]);
 
-  // Управление корзиной
-  function handleAddToCart(product) {
-    setCartItems((prevItems) => {
-      const existing = prevItems.find((item) => item.product.id === product.id);
-      if (existing) {
-        return prevItems.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [...prevItems, { product, quantity: 1 }];
-    });
-  }
-
-  function handleUpdateCartQty(productId, delta) {
-    setCartItems((prevItems) =>
-      prevItems
-        .map((item) => {
-          if (item.product.id === productId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean)
-    );
-  }
-
-  function handleRemoveFromCart(productId) {
-    setCartItems((prevItems) => prevItems.filter((item) => item.product.id !== productId));
-  }
-
-  const totalCartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  useEffect(() => {
+    if (hash && !loading) document.getElementById(hash.slice(1))?.scrollIntoView?.({ behavior: 'smooth' });
+  }, [hash, pathname, loading]);
 
   // Фильтрация товаров по поиску и категориям
   const categories = [
@@ -213,25 +155,7 @@ function App() {
 
   return (
     <>
-      {/* Шапка сайта */}
-      <Header
-        cartCount={totalCartCount}
-        onOpenCart={() => setIsCartOpen(true)}
-        user={user}
-        onOpenAuth={() => setIsAuthModalOpen(true)}
-      />
-
-      {/* Шторка корзины */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        cartItems={cartItems}
-        onUpdateQty={handleUpdateCartQty}
-        onRemoveItem={handleRemoveFromCart}
-        onCheckout={() => {
-          document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
-        }}
-      />
+      <Header user={user} onOpenAuth={() => setIsAuthModalOpen(true)} />
 
       {/* Модальное окно аккаунта */}
       {isAuthModalOpen && (
@@ -253,12 +177,14 @@ function App() {
                 <div className="account-header-status">
                   <div className="account-user-badge">
                     <b>{user.name}</b>
-                    <span>{user.email} • Роль: {user.role === 'admin' ? 'Администратор' : 'Покупатель'}</span>
+                    <span>{user.email} • Роль: {({ admin: 'Администратор', farmer: 'Фермер', user: 'Покупатель' })[user.role]}</span>
                   </div>
                   <button type="button" className="btn btn-secondary" style={{ minHeight: '38px', padding: '0 16px', fontSize: '13px' }} onClick={handleLogout}>
                     Выйти
                   </button>
                 </div>
+                <p><Link to="/orders" onClick={() => setIsAuthModalOpen(false)}>Мои заказы</Link></p>
+                {user.role === 'farmer' && <p><Link to="/orders/incoming" onClick={() => setIsAuthModalOpen(false)}>Заказы на мои товары</Link></p>}
                 <PasswordForm onChanged={handleLogin} />
               </div>
             ) : (
@@ -271,11 +197,30 @@ function App() {
         </div>
       )}
 
-      {/* Панель добавления товара (только для Администратора) */}
-      {user?.role === 'admin' && (
+      <Routes>
+      <Route path="/products/:id" element={<ProductDetails user={user} />} />
+      <Route path="/products/:id/edit" element={<ProductDetails user={user} editing checkingAuth={checkingAuth} />} />
+      <Route path="/cart" element={<CartPage user={user} checkingAuth={checkingAuth} onOpenAuth={() => setIsAuthModalOpen(true)} />} />
+      <Route path="/login" element={<main className="container product-details checkout-form">
+        <LoginForm onLogin={(account, token) => { handleLogin(account, token); navigate('/cart'); }} />
+      </main>} />
+      <Route path="/orders" element={user ? <OrdersPage key={`buyer-${user.id}`} /> : (
+        <main className="container product-details">
+          <h1>Мои заказы</h1>
+          {checkingAuth ? <p role="status">Проверка авторизации…</p> :
+            <button className="btn btn-primary" type="button" onClick={() => setIsAuthModalOpen(true)}>Войти</button>}
+        </main>
+      )} />
+      <Route path="/orders/incoming" element={user?.role === 'farmer' ? <OrdersPage key={`farmer-${user.id}`} incoming /> : (
+        <main className="container product-details">
+          <h1>Заказы на мои товары</h1>
+          {checkingAuth ? <p role="status">Проверка авторизации…</p> : <p>Раздел доступен фермерам.</p>}
+        </main>
+      )} />
+      <Route path="/" element={<>
+      {['admin', 'farmer'].includes(user?.role) && (
         <AddProductForm onAdded={(product) => setProducts((items) => [...items, product])} />
       )}
-
       {/* 1. HERO SECTION */}
       <section className="hero-section">
         <div className="container">
@@ -422,9 +367,11 @@ function App() {
           </div>
 
           {loading ? (
-            <p style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-text-muted)' }}>
+            <p role="status" style={{ textAlign: 'center', padding: '48px 0', color: 'var(--color-text-muted)' }}>
               Загрузка каталога…
             </p>
+          ) : error ? (
+            <p className="form-alert form-alert-error" role="alert">{error}</p>
           ) : filteredProducts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--color-text-muted)' }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', color: 'var(--color-secondary)' }}>
@@ -439,7 +386,6 @@ function App() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onAdd={handleAddToCart}
                   featured={String(product.id) === '1'}
                   onDelete={user?.role === 'admin' ? handleDelete : undefined}
                 />
@@ -500,6 +446,10 @@ function App() {
           revision={ordersRevision}
         />
       )}
+
+      </>} />
+      <Route path="*" element={<main className="container product-details"><h1>Страница не найдена</h1><Link to="/">В каталог</Link></main>} />
+      </Routes>
 
       {/* 7. FOOTER */}
       <Footer />

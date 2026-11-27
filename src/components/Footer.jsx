@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { WheatIcon, TreeIcon } from './Icons';
 
 function Footer() {
@@ -24,10 +25,10 @@ function Footer() {
           <div className="footer-col">
             <h4>Каталог</h4>
             <ul>
-              <li><a href="#catalog">Дикий мёд и пасека</a></li>
-              <li><a href="#catalog">Сыродавленные масла</a></li>
-              <li><a href="#catalog">Горные травы и сборы</a></li>
-              <li><a href="#catalog">Злаки и эко-семена</a></li>
+              <li><Link to="/#catalog">Дикий мёд и пасека</Link></li>
+              <li><Link to="/#catalog">Сыродавленные масла</Link></li>
+              <li><Link to="/#catalog">Горные травы и сборы</Link></li>
+              <li><Link to="/#catalog">Злаки и эко-семена</Link></li>
             </ul>
           </div>
 
@@ -35,10 +36,10 @@ function Footer() {
           <div className="footer-col">
             <h4>Ценности</h4>
             <ul>
-              <li><a href="#values">Zero Waste тара</a></li>
-              <li><a href="#trust">Лабораторный контроль</a></li>
-              <li><a href="#contact">Оптовые эко-закупки</a></li>
-              <li><a href="#contact">Партнёрство для фермеров</a></li>
+              <li><Link to="/#values">Zero Waste тара</Link></li>
+              <li><Link to="/#trust">Лабораторный контроль</Link></li>
+              <li><Link to="/#contact">Оптовые эко-закупки</Link></li>
+              <li><Link to="/#contact">Партнёрство для фермеров</Link></li>
             </ul>
           </div>
 

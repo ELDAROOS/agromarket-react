@@ -28,7 +28,9 @@ build_*.py
 
 .env*
 !.env.example
+!.env.e2e.example
 playwright-report
 test-results
 lab10-artifacts
 coverage
+playwright/.cache/
